@@ -135,9 +135,9 @@ void ECU::enviar_serial()
   String s_velocidade = String(velocidade);
 
   String s_temperatura = temperatura < 0 ? "-" : "+";
-  s_temperatura += String(temperatura);
+  s_temperatura += String(modulo_int(temperatura));
 
-  String s_bateria = String(bateria);
+  String s_bateria = String(modulo_int(bateria));
   
 
 

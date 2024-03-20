@@ -13,6 +13,8 @@
 #define DIAMETRO 0.51916 // Diâmetro da roda em metros
 #define COMPRIMENTO CONST_PI * DIAMETRO
 
+#define TIMEZONE_GPS -3 // Fuso Horário de Brasília
+
 
 #define LIMIAR_BATERIA  3600 // 4095 (Escala Maxima) * (2,9V/3,3V)
 #define BATERIA_ZERO    3542 // 4095 * (2,855V (11,8V Bateria Descarregada)/3,3V) 

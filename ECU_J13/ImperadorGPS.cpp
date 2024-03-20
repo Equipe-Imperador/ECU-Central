@@ -45,7 +45,7 @@ void ImperadorGPS::atualizar()
     velocidade = gps.speed.kmph();
     altitude = gps.altitude.meters();
     curso = gps.course.deg();
-    hora = gps.time.hour();
+    hora = gps.time.hour() + TIMEZONE_GPS;
     minutos = gps.time.minute();
   }
 }

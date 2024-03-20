@@ -25,8 +25,6 @@ class Veiculo
     float tensao_bateria;
 
     bool estado_freio;
-
-    void atualizar_freio();
     
   public:
 
@@ -50,5 +48,7 @@ class Veiculo
 
     void calcular_velocidade();
     void calcular_rpm();
+
+    void atualizar_freio();
 
 };

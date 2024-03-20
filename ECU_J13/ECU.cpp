@@ -12,9 +12,10 @@
 
 ECU::ECU():
   gps(BAUD_GPS, RX_GPS, TX_GPS),
-  modo(DEV),
+  modo(CORRIDA),
   box_state(false),
-  timer_lora(millis())
+  timer_lora(millis()),
+  timer_atualizacoes(millis())
 {}
 
 ECU::~ECU()
@@ -24,29 +25,31 @@ void ECU::configurar()
 {
   iniciar_serial();
   Serial.println("Sistema Baja Imperador");
-  if(dev_ativo())
+  //if(dev_ativo())
     Serial.println("Serial iniciada");
   delay(1000);
   configurar_pinos();
-  Serial.println("Pinos Configurados");
+  //Serial.println("Pinos Configurados");
 
-  acelerometro.iniciar();
+  //acelerometro.iniciar();
   infravermelho.iniciar();
   can.iniciar();
 }
 
 void ECU::executar  ()
 {
-  if(dev_ativo()) 
+  //if(dev_ativo()) 
     //Serial.println("Atualizando");
   atualizar();
-  if(dev_ativo()) 
+  //if(dev_ativo()) 
     //Serial.println("Enviando Dados");
+  adquirir_dados();
+  tratar_dados();
   enviar_dados();
-  if(dev_ativo()) 
+  //if(dev_ativo()) 
     //Serial.println("Verificando Seriais");
   verificar_serial();
-  if(dev_ativo()) 
+  //if(dev_ativo()) 
     //Serial.println("Enviando CAN novamente");
   enviar_CAN();
 }
@@ -86,22 +89,19 @@ int modulo_int(int a){
   return a < 0 ? -a : a;
 }
 
-void ECU::enviar_serial()
-{
-  int intervalo_envio = dev_ativo() || corrida_ativo() ? 1000 : 3000;
-
-  if(millis() - timer_lora < intervalo_envio) return;
-
-  timer_lora = millis();
-
+void ECU::adquirir_dados(){
   rpm = baja.get_rpm()/10;
   velocidade = baja.get_velocidade();
   temperatura = (int) (infravermelho.get_temperatura_objeto()*10);
   bateria = (int) (baja.get_bateria()*10);
   freio = baja.get_freio();
-  aceleracao = acelerometro.get_aceleracao();
-  giro = acelerometro.get_giro();
+  
+  //aceleracao = acelerometro.get_aceleracao();
+  //giro = acelerometro.get_giro();
 
+}
+
+void ECU::tratar_dados(){
   // Tratamento dos dados
 
   if(rpm < 0)
@@ -119,8 +119,15 @@ void ECU::enviar_serial()
   if(bateria < 0)
     bateria = 0;
   bateria %= 1000;
+}
 
+void ECU::enviar_serial()
+{
+  unsigned long int intervalo_envio = dev_ativo() || corrida_ativo() ? 1000 : 3000;
 
+  if(millis() - timer_lora < intervalo_envio) return;
+
+  timer_lora = millis();
 
   // Tratamento das Strings
 
@@ -136,67 +143,74 @@ void ECU::enviar_serial()
 
   // Formato da String V**R***F*T+****B***
 
-  if(dev_ativo())
-  {
-    Serial.print("V");
-    Serial.print(s_velocidade);
-    Serial.print("R");
-    Serial.print(s_rpm);
-    Serial.print("F");
-    Serial.print(freio);
-    Serial.print("T");
-    Serial.print(temperatura);
-    Serial.print("B");
-    Serial.println(s_bateria);
+  switch(modo){
+    case DEV:
+
+      Serial.print("V");
+      Serial.print(s_velocidade);
+      Serial.print("R");
+      Serial.print(s_rpm);
+      Serial.print("F");
+      Serial.print(freio);
+      Serial.print("T");
+      Serial.print(temperatura);
+      Serial.print("B");
+      Serial.println(s_bateria);
 
     
-    Serial2.print("V");
-    Serial2.print(s_velocidade); 
-    Serial2.print("R");
-    Serial2.print(s_rpm);
-    Serial2.print("F");
-    Serial2.print(freio);
-    Serial2.print("T");
-    Serial2.print(s_temperatura);
-    Serial2.print("B");
-    Serial2.println(s_bateria);
-  }
-  else if(corrida_ativo())
-  {
-    Serial2.print("V");
-    Serial2.print(s_velocidade);
-    Serial2.print("R");
-    Serial2.print(s_rpm);
-    Serial2.print("F");
-    Serial2.print(freio);
-    Serial2.print("T");
-    Serial2.print(s_temperatura);
-    Serial2.print("B");
-    Serial2.println(s_bateria);
-  }
-  else if(apresentacao_ativo())
-  {
-    Serial.print("V");
-    Serial.print(s_velocidade);
-    Serial.print("R");
-    Serial.print(s_rpm);
-    Serial.print("F");
-    Serial.print(freio);
-    Serial.print("T");
-    Serial.print(s_temperatura);
-    Serial.print("B");
-    Serial.println(s_bateria);
+      Serial2.print("V");
+      Serial2.print(s_velocidade); 
+      Serial2.print("R");
+      Serial2.print(s_rpm);
+      Serial2.print("F");
+      Serial2.print(freio);
+      Serial2.print("T");
+      Serial2.print(s_temperatura);
+      Serial2.print("B");
+      Serial2.println(s_bateria);
+      
+      break;
+  
+    case CORRIDA:
+  
+      Serial2.print("V");
+      Serial2.print(s_velocidade);
+      Serial2.print("R");
+      Serial2.print(s_rpm);
+      Serial2.print("F");
+      Serial2.print(freio);
+      Serial2.print("T");
+      Serial2.print(s_temperatura);
+      Serial2.print("B");
+      Serial2.println(s_bateria);
 
-    Serial2.print("V");
-    Serial2.print(s_velocidade);
-    Serial2.print("R");
-    Serial2.print(s_rpm);
-    Serial2.print("F");
-    Serial2.print(freio);
-    Serial2.print("T");
-    Serial2.print(s_temperatura);
-    Serial2.print("B");
-    Serial2.println(s_bateria);
+      break;
+  
+    case APRESENTACAO:
+  
+      Serial.print("V");
+      Serial.print(s_velocidade);
+      Serial.print("R");
+      Serial.print(s_rpm);
+      Serial.print("F");
+      Serial.print(freio);
+      Serial.print("T");
+      Serial.print(s_temperatura);
+      Serial.print("B");
+      Serial.println(s_bateria);
+
+      Serial2.print("V");
+      Serial2.print(s_velocidade);
+      Serial2.print("R");
+      Serial2.print(s_rpm);
+      Serial2.print("F");
+      Serial2.print(freio);
+      Serial2.print("T");
+      Serial2.print(s_temperatura);
+      Serial2.print("B");
+      Serial2.println(s_bateria);
+
+      break;
   }
 
   //!dev
@@ -276,11 +290,17 @@ void ECU::verificar_CAN(){}
 
 void ECU::atualizar()
 {
+  baja.atualizar_freio();
+
+  if(millis() - timer_atualizacoes < 1000)
+    return;
+
+  timer_atualizacoes = millis();
+
   gps.atualizar();
   infravermelho.atualizar();
   baja.atualizar();
-  baja.atualizar_bateria();
-  acelerometro.atualizar();
+  //acelerometro.atualizar();
 }
 
 bool ECU::dev_ativo()

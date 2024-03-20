@@ -28,7 +28,7 @@ Veiculo::~Veiculo(){}
 
 void Veiculo::atualizar()
 {
-  atualizar_freio();
+  //atualizar_freio();
   atualizar_bateria();
   atualizar_velocidade();
   atualizar_rpm();

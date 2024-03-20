@@ -37,6 +37,7 @@ class ECU
     ImperadorCAN can;
 
     unsigned long int timer_lora;
+    unsigned long int timer_atualizacoes;
 
     bool box_state;
 
@@ -52,6 +53,9 @@ class ECU
 
     void configurar_pinos();
     void iniciar_serial();
+
+    void adquirir_dados();
+    void tratar_dados();
 
     void enviar_dados();
     void enviar_serial();

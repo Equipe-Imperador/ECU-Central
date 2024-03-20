@@ -10,6 +10,7 @@ O código é desenvolvido em C++ por ser uma linguagem de ótima performance, se
 
 ### UML
 
+![UML Ecu Central](https://github.com/Equipe-Imperador/ECU-Central/assets/89215941/1e1fdc41-9700-4a10-ab44-3c7bdcad9b61)
 
 
 ## Descrição dos Códigos
@@ -38,3 +39,12 @@ A classe CAN realiza a interface com a biblioteca CAN.h. Essa por sua vez realiz
 
 ### SD
 A classe SD foi criada para fazer uma interface simples com a biblioteca FS.h da ESP32. Salva todos os arquivos em um SD de forma simples.
+
+# Equipe Imperador
+Este projeto foi desenvolvido pela equipe Imperador, subsistema de eletrônica. Todos os códigos de terceiros que foram utilizados no projeto são Open Source, entretanto, com modificações realizadas para atender da melhor forma a equipe. Caso pretenda utilizar partes do nosso projeto as quais são de nossa autoria, pedimos que apenas dê os devidos créditos. 
+
+### Integrantes de eletrônica
+Rossi
+Lambari
+Mary
+Marco Polo
